@@ -1,0 +1,9 @@
+C:\Users\camer\Documents\GitHub\multiplayer\CsServer\CsServer\obj\Debug\CsServer.csprojAssemblyReference.cache
+C:\Users\camer\Documents\GitHub\multiplayer\CsServer\CsServer\obj\Debug\CsServer.csproj.CoreCompileInputs.cache
+C:\Users\camer\Documents\GitHub\multiplayer\CsServer\CsServer\bin\Debug\CsServer.exe.config
+C:\Users\camer\Documents\GitHub\multiplayer\CsServer\CsServer\bin\Debug\CsServer.exe
+C:\Users\camer\Documents\GitHub\multiplayer\CsServer\CsServer\bin\Debug\CsServer.pdb
+C:\Users\camer\Documents\GitHub\multiplayer\CsServer\CsServer\bin\Debug\KaymakNetwork.dll
+C:\Users\camer\Documents\GitHub\multiplayer\CsServer\CsServer\obj\Debug\CsServer.csproj.CopyComplete
+C:\Users\camer\Documents\GitHub\multiplayer\CsServer\CsServer\obj\Debug\CsServer.exe
+C:\Users\camer\Documents\GitHub\multiplayer\CsServer\CsServer\obj\Debug\CsServer.pdb
