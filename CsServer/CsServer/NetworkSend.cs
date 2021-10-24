@@ -22,13 +22,34 @@ namespace CsServer
             buffer.Dispose();
         }
 
-        public static void InstantiateNetworkPlayer(int connectionID)
+        private static ByteBuffer PlayerData(int connectionID, Player player)
         {
             ByteBuffer buffer = new ByteBuffer(4);
             buffer.WriteInt32((int)ServerPackets.SInstantiatePlayer);
-            NetworkConfig.socket.SendDataTo(connectionID, buffer.Data, buffer.Head);
+            buffer.WriteInt32(connectionID);
 
-            buffer.Dispose();
+            return buffer;
+        }
+
+        public static void InstantiateNetworkPlayer(int connectionID, Player player)
+        {
+
+
+            for (int i = 1; i < GameManager.playerList.Count; i++)
+            {
+                if(GameManager.playerList[i] != null)
+                {
+                    if(GameManager.playerList[i].inGame)
+                    {
+                        if(i != connectionID)
+                        {
+                            NetworkConfig.socket.SendDataTo(connectionID, PlayerData(i, player).Data, PlayerData(i, player).Head);
+                        }
+                    }
+                }
+            }
+
+            NetworkConfig.socket.SendDataToAll(PlayerData(connectionID, player).Data, PlayerData(connectionID, player).Head);
         }
 
     }

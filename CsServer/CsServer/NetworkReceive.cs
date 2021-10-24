@@ -21,7 +21,7 @@ namespace CsServer
             string msg = buffer.ReadString();
 
             Console.WriteLine(msg);
-
+            GameManager.createPlayer(connectionID);
             buffer.Dispose();
         }
     }

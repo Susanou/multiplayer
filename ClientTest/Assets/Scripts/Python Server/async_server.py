@@ -10,9 +10,11 @@ HOST, PORT = 'localhost', 7777
 class ServerTCP(asyncio.Protocol):
 
     def __init__(self):
+        self.clients = []
         super().__init__()
 
     def connection_made(self, transport):
+        self.clients.append(transport)
         self.transport = transport
         print("Connection made with: ", transport)
         self.transport.write(b"1Welcome to the server!\n")

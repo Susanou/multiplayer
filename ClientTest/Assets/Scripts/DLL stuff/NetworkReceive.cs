@@ -32,6 +32,10 @@ internal static class NetworkReceive
     }
 
     private static void Packet_InstantiateNetworkPlayer(ref byte[] data){
-        NetworkManager.instance.InstantiateNetworkPlayer();
+
+        ByteBuffer buffer = new ByteBuffer(data);
+        int connectionID = buffer.ReadInt32();
+
+        NetworkManager.instance.InstantiateNetworkPlayer(connectionID);
     }
 }

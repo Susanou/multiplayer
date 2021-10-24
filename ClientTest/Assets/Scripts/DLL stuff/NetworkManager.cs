@@ -26,7 +26,10 @@ public class NetworkManager : MonoBehaviour
         NetworkConfig.DisconnectFromServer();
     }
 
-    public void InstantiateNetworkPlayer(){
+    public void InstantiateNetworkPlayer(int connectionID){
         GameObject go = Instantiate(playerPref);
+        go.name = "Player: "+connectionID;
+
+        GameManager.instance.playerList.Add(connectionID, go);
     }
 }
