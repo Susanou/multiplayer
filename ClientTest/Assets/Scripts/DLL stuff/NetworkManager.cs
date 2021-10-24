@@ -5,6 +5,14 @@ using KaymakNetwork;
 
 public class NetworkManager : MonoBehaviour
 {
+
+    public GameObject playerPref;
+
+    public static NetworkManager instance;
+
+    private void Awake(){
+        instance = this;
+    }
     // Start is called before the first frame update
     void Start()
     {
@@ -16,5 +24,9 @@ public class NetworkManager : MonoBehaviour
 
     private void OnApplicationQuit(){
         NetworkConfig.DisconnectFromServer();
+    }
+
+    public void InstantiateNetworkPlayer(){
+        GameObject go = Instantiate(playerPref);
     }
 }

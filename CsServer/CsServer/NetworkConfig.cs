@@ -46,6 +46,7 @@ namespace CsServer
         {
             Console.WriteLine("Connection received on index [" + connectionID + "]");
             NetworkSend.WelcomeMsg(connectionID, "Welcome to the server");
+            NetworkSend.InstantiateNetworkPlayer(connectionID);
         }
 
         internal static void Socket_ConnectionLost(int connectionID)

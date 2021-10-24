@@ -6,6 +6,7 @@ using UnityEngine;
 enum ServerPackets
 {
     SWelcome = 1,
+    SInstantiatePlayer = 2,
 }
 internal static class NetworkReceive
 {
@@ -15,6 +16,7 @@ internal static class NetworkReceive
         //NetworkSend.SendPing();
         
         NetworkConfig.socket.PacketId[(int)ServerPackets.SWelcome] = new KaymakNetwork.Network.Client.Client.DataArgs(Packet_WelcomeMsg);
+        NetworkConfig.socket.PacketId[(int)ServerPackets.SInstantiatePlayer] = new KaymakNetwork.Network.Client.Client.DataArgs(Packet_InstantiateNetworkPlayer);
     }
 
     private static void Packet_WelcomeMsg(ref byte[] data)
@@ -27,5 +29,9 @@ internal static class NetworkReceive
         Debug.Log(msg);
 
         NetworkSend.SendPing();
+    }
+
+    private static void Packet_InstantiateNetworkPlayer(ref byte[] data){
+        NetworkManager.instance.InstantiateNetworkPlayer();
     }
 }

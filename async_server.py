@@ -38,7 +38,8 @@ class ServerUDP(asyncio.DatagramProtocol):
     
     def datagram_received(self, data, addr):
         print(f"Received Syslog message: {data} from {addr}")
-        response = b"Recu 5 sur 5\n"
+        self.transport.sendto(b"Recu 5/5 client", addr)
+        response = b"Instantiate Player"
         self.transport.sendto(response, addr)
     
 
