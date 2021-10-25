@@ -10,6 +10,7 @@ namespace CsServer
     {
 
         public static Dictionary<int, Player> playerList = new Dictionary<int, Player>();
+        public static float playerSpeed = 0.01f;
 
         public static void JoinGame(int connectionID, Player player)
         {

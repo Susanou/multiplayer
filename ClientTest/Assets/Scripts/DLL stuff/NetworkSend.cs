@@ -6,6 +6,7 @@ using UnityEngine;
 enum ClientPackets
 {
     CPing = 1,
+    CKeyInput,
 }
 
 internal static class NetworkSend
@@ -19,5 +20,16 @@ internal static class NetworkSend
         NetworkConfig.socket.SendData(buffer.Data, buffer.Head);
         buffer.Dispose();
         Debug.Log("Client data sent");
+    }
+
+    public static void SendKeyInput(InputManager.Keys pressedKey)
+    {
+        ByteBuffer buffer = new ByteBuffer(4);
+
+        buffer.WriteInt32((int)ClientPackets.CKeyInput);
+        buffer.WriteByte((byte)pressedKey);
+        NetworkConfig.socket.SendData(buffer.Data, buffer.Head);
+
+        buffer.Dispose();
     }
 }

@@ -58,3 +58,7 @@ sysinfo.txt
 # Crashlytics generated file
 crashlytics-build.properties
 
+
+ClientTest/Assets/Scripts/Python Server/__pycache__/
+
+ClientTest/Assets/Scripts/Python Server/__pycache__.meta

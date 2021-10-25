@@ -7,6 +7,7 @@ public class NetworkManager : MonoBehaviour
 {
 
     public GameObject playerPref;
+    public int myConnectionID;
 
     public static NetworkManager instance;
 
@@ -26,9 +27,13 @@ public class NetworkManager : MonoBehaviour
         NetworkConfig.DisconnectFromServer();
     }
 
-    public void InstantiateNetworkPlayer(int connectionID){
+    public void InstantiateNetworkPlayer(int connectionID, bool isMyPlayer){
         GameObject go = Instantiate(playerPref);
         go.name = "Player: "+connectionID;
+
+        if(isMyPlayer){
+            go.AddComponent<InputManager>();
+        }
 
         GameManager.instance.playerList.Add(connectionID, go);
     }

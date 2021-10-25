@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Numerics;
 
 namespace CsServer
 {
@@ -11,6 +12,8 @@ namespace CsServer
 
         public int connectionID;
         public bool inGame;
+
+        public Vector3 position;
 
     }
 }

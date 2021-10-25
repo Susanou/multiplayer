@@ -19,7 +19,11 @@ public class UnityUDPClient : MonoBehaviour
 
     private UdpClient client;
     private Thread threadRecv;
-    private bool spawn = false; 
+    //private bool spawn = false; 
+
+    private static Queue<Action> _executionQueue = new Queue<Action>();
+
+
     // Start is called before the first frame update
     void Start()
     {
@@ -34,9 +38,15 @@ public class UnityUDPClient : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (spawn){
+/*         if (spawn){
             InstantiatePlayer();
             spawn = false;
+        } */
+
+        lock(_executionQueue){
+            while(_executionQueue.Count > 0){
+                _executionQueue.Dequeue().Invoke();
+            }
         }
     }
 
@@ -61,12 +71,14 @@ public class UnityUDPClient : MonoBehaviour
                 receivedData = client.Receive(ref RemoteIP);
                 Debug.Log("Received data from server "+RemoteIP.Address.ToString() + " on port "+ RemoteIP.Port.ToString());
                 Debug.Log("message: " + Encoding.ASCII.GetString(receivedData));
-                String message = Encoding.ASCII.GetString(receivedData);
-                Debug.Log(message.Equals("Instantiate Player"));
+                string rcvData = Encoding.ASCII.GetString(receivedData);
+                string[] message = rcvData.Split('\n');
 
-                if (message.Equals("Instantiate Player")){
-                    spawn = true;
-                    recvloop = false;
+                Debug.Log("message: " + message.ToString());
+
+                if(message[0] == "I"){
+                    int connectionID = Int32.Parse(message[1]);
+                    _executionQueue.Enqueue((()=>InstantiatePlayer(connectionID))); // find a way to not have to use the lambda to wrap everything
                     response = Encoding.ASCII.GetBytes("Player Instantiated");
                     client.Send(response, response.Length);
                 }
@@ -78,12 +90,16 @@ public class UnityUDPClient : MonoBehaviour
     }
 
     private void OnApplicationQuit(){
+        recvloop = false;
         byte[] response = Encoding.ASCII.GetBytes("Thank you server goodbye");
         client.Send(response, response.Length);
         client.Dispose();
     }
 
-    private void InstantiatePlayer(){
-        GameObject player = Instantiate(PlayerPrefab);
+    private void InstantiatePlayer(int connectionID){
+        GameObject go = Instantiate(PlayerPrefab);
+        go.name = "Player: "+connectionID;
+
+        UDPManager.instance.playerList.Add(connectionID, go);
     }
 }

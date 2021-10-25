@@ -51,6 +51,7 @@ namespace CsServer
         internal static void Socket_ConnectionLost(int connectionID)
         {
             Console.WriteLine("Connection lost on index [" + connectionID + "]");
+            GameManager.playerList.Remove(connectionID);
         }
     }
 }

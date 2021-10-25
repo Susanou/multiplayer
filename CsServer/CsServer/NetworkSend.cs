@@ -1,5 +1,6 @@
 ﻿using System;
 using KaymakNetwork;
+using System.Numerics;
 
 namespace CsServer
 {
@@ -7,6 +8,7 @@ namespace CsServer
     {
         SWelcome = 1,
         SInstantiatePlayer = 2,
+        SPlayerMove
     }
 
     internal static class NetworkSend
@@ -16,9 +18,10 @@ namespace CsServer
         {
             ByteBuffer buffer = new ByteBuffer(4);
             buffer.WriteInt32((int)ServerPackets.SWelcome);
+            buffer.WriteInt32(connectionID);
             buffer.WriteString(msg);           
             NetworkConfig.socket.SendDataTo(connectionID, buffer.Data, buffer.Head);
-            Console.WriteLine("Buffer Content: " + buffer.ToString());
+
             buffer.Dispose();
         }
 
@@ -50,6 +53,20 @@ namespace CsServer
             }
 
             NetworkConfig.socket.SendDataToAll(PlayerData(connectionID, player).Data, PlayerData(connectionID, player).Head);
+        }
+
+        public static void SendPlayerMove(int connectionID, float x, float y, float z)
+        {
+            ByteBuffer buffer = new ByteBuffer(4);
+            buffer.WriteInt32((int)ServerPackets.SPlayerMove);
+            buffer.WriteInt32(connectionID);
+            buffer.WriteSingle(x);
+            buffer.WriteSingle(y);
+            buffer.WriteSingle(z);
+
+            NetworkConfig.socket.SendDataToAll(buffer.Data, buffer.Head);
+
+            buffer.Dispose();
         }
 
     }

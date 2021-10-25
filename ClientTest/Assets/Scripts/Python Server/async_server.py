@@ -3,6 +3,7 @@ import argparse
 import socket
 import threading
 
+from player import Player
 from time import sleep
 
 HOST, PORT = 'localhost', 7777
@@ -10,11 +11,9 @@ HOST, PORT = 'localhost', 7777
 class ServerTCP(asyncio.Protocol):
 
     def __init__(self):
-        self.clients = []
         super().__init__()
 
     def connection_made(self, transport):
-        self.clients.append(transport)
         self.transport = transport
         print("Connection made with: ", transport)
         self.transport.write(b"1Welcome to the server!\n")
@@ -32,6 +31,8 @@ class ServerTCP(asyncio.Protocol):
 class ServerUDP(asyncio.DatagramProtocol):
     
     def __init__(self):
+        self.connections = []
+        self.players = {}
         super().__init__()
 
     def connection_made(self, transport):
@@ -39,11 +40,50 @@ class ServerUDP(asyncio.DatagramProtocol):
         print("Connection made with: ", transport)
     
     def datagram_received(self, data, addr):
+        
+        if addr not in self.connections:
+            self.connections.append(addr)
         print(f"Received Syslog message: {data} from {addr}")
         self.transport.sendto(b"Recu 5/5 client", addr)
-        response = b"Instantiate Player"
-        self.transport.sendto(response, addr)
+        if data == b'Hello server':
+            self.create_player(addr)
+        
+        if data == b'Thank you server goodbye':
+            self.connections.remove(addr)
+            del self.players[addr]
     
+    def send_to_all(self, data):
+        for a in self.connections:
+            self.transport.sendto(data, a)
+
+
+    def create_player(self, addr):
+        
+        player = Player(self.connections.index(addr), True)
+        self.players[addr] = player
+        print(f"player {player.id} has been added to the game")
+        self.join_game(addr, player)
+
+    def player_data(self, addr, player):
+        response = b'I\n'
+        response += str(self.connections.index(addr)).encode()
+
+        return response
+
+
+    def join_game(self, addr, player):
+        self.instantiate_player(addr, player)
+    
+    def instantiate_player(self, addr, player:Player):
+        
+        # Send all connected players to the new connection
+        for i in self.players:
+            if self.players[i] is not None:
+                if self.players[i].in_game:
+                    if i != addr:
+                        self.transport.sendto(self.player_data(i, self.players[i]), addr)
+
+        self.send_to_all(self.player_data(addr, player))
 
 
 if __name__ == '__main__':

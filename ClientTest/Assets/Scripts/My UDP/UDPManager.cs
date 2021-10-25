@@ -4,6 +4,15 @@ using UnityEngine;
 
 public class UDPManager : MonoBehaviour
 {
+    public Dictionary<int, GameObject> playerList = new Dictionary<int, GameObject>();
+
+    public static UDPManager instance;
+
+    private void Awake()
+    {
+        instance = this;
+    }
+
     // Start is called before the first frame update
     void Start()
     {
