@@ -45,7 +45,7 @@ class ServerUDP(asyncio.DatagramProtocol):
             self.connections.append(addr)
         print(f"Received Syslog message: {data} from {addr}")
         self.transport.sendto(b"Recu 5/5 client", addr)
-        if data == b'Hello server':
+        if data == b'Ping':
             self.create_player(addr)
         
         if data == b'Disconnected':

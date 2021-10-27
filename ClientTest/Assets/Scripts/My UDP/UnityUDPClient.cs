@@ -56,7 +56,7 @@ public class UnityUDPClient : MonoBehaviour
 
         IPEndPoint RemoteIP = new IPEndPoint(IPAddress.Any, 0);
 
-        byte[] response = Encoding.ASCII.GetBytes("Hello server");
+        byte[] response = Encoding.ASCII.GetBytes("Ping");
         client.Send(response, response.Length);
         byte[] receivedData = client.Receive(ref RemoteIP);
         
@@ -72,7 +72,7 @@ public class UnityUDPClient : MonoBehaviour
                 Debug.Log("Received data from server "+RemoteIP.Address.ToString() + " on port "+ RemoteIP.Port.ToString());
                 Debug.Log("message: " + Encoding.ASCII.GetString(receivedData));
                 string rcvData = Encoding.ASCII.GetString(receivedData);
-                string[] message = rcvData.Split('\n');
+                string[] message = rcvData.Split(':');
 
                 Debug.Log("message: " + message.ToString());
 
@@ -91,7 +91,7 @@ public class UnityUDPClient : MonoBehaviour
 
     private void OnApplicationQuit(){
         recvloop = false;
-        byte[] response = Encoding.ASCII.GetBytes("Thank you server goodbye");
+        byte[] response = Encoding.ASCII.GetBytes("Disconnected");
         client.Send(response, response.Length);
         client.Dispose();
     }
