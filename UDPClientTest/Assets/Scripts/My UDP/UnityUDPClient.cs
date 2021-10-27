@@ -13,15 +13,25 @@ public class UnityUDPClient : MonoBehaviour
     public string host;
     public int port;
 
+    public int myConnectionID;
+
     public GameObject PlayerPrefab;
 
     private bool recvloop;
 
-    private UdpClient client;
+    private UnityUDPClient instance;
+
+    internal static UdpClient client;
     private Thread threadRecv;
     //private bool spawn = false; 
 
     private static Queue<Action> _executionQueue = new Queue<Action>();
+    private IPEndPoint RemoteIP = new IPEndPoint(IPAddress.Any, 0);
+
+    private void Awake()
+    {
+        instance = this;
+    }
 
 
     // Start is called before the first frame update
@@ -38,11 +48,6 @@ public class UnityUDPClient : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-/*         if (spawn){
-            InstantiatePlayer();
-            spawn = false;
-        } */
-
         lock(_executionQueue){
             while(_executionQueue.Count > 0){
                 _executionQueue.Dequeue().Invoke();
@@ -54,33 +59,25 @@ public class UnityUDPClient : MonoBehaviour
     {
         recvloop = true;
 
-        IPEndPoint RemoteIP = new IPEndPoint(IPAddress.Any, 0);
+        UDPSend.SendPing();
 
-        byte[] response = Encoding.ASCII.GetBytes("Ping");
-        client.Send(response, response.Length);
-        byte[] receivedData = client.Receive(ref RemoteIP);
-        
-        Debug.Log("Received data from server "+RemoteIP.Address.ToString() + " on port "+ RemoteIP.Port.ToString());
-        Debug.Log("message: " + Encoding.ASCII.GetString(receivedData));
 
         while (recvloop)
         {
-            
             try
             {
-                receivedData = client.Receive(ref RemoteIP);
-                Debug.Log("Received data from server "+RemoteIP.Address.ToString() + " on port "+ RemoteIP.Port.ToString());
-                Debug.Log("message: " + Encoding.ASCII.GetString(receivedData));
-                string rcvData = Encoding.ASCII.GetString(receivedData);
-                string[] message = rcvData.Split(':');
+                string[] message = RecvPacket();
 
                 Debug.Log("message: " + message.ToString());
 
+                if(message[0] == "W"){
+                    myConnectionID = Int32.Parse(message[1]);
+                }
+
                 if(message[0] == "I"){
                     int connectionID = Int32.Parse(message[1]);
-                    _executionQueue.Enqueue((()=>InstantiatePlayer(connectionID))); // find a way to not have to use the lambda to wrap everything
-                    response = Encoding.ASCII.GetBytes("Player Instantiated");
-                    client.Send(response, response.Length);
+                    _executionQueue.Enqueue((()=>PacketHandler.instance.InstantiatePlayer(connectionID, PlayerPrefab))); // find a way to not have to use the lambda to wrap everything
+                    UDPSend.SendInstantiated();
                 }
             }
             catch (Exception ex){
@@ -96,10 +93,13 @@ public class UnityUDPClient : MonoBehaviour
         client.Dispose();
     }
 
-    private void InstantiatePlayer(int connectionID){
-        GameObject go = Instantiate(PlayerPrefab);
-        go.name = "Player: "+connectionID;
+    private string[] RecvPacket(){
+        byte[] receivedData = client.Receive(ref RemoteIP);
+        Debug.Log("Received data from server "+RemoteIP.Address.ToString() + " on port "+ RemoteIP.Port.ToString());
+        Debug.Log("message: " + Encoding.ASCII.GetString(receivedData));
+        string rcvData = Encoding.ASCII.GetString(receivedData);
+        string[] message = rcvData.Split(':');
 
-        UDPManager.instance.playerList.Add(connectionID, go);
+        return message;
     }
 }

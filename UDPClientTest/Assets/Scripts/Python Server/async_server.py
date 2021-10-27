@@ -44,8 +44,9 @@ class ServerUDP(asyncio.DatagramProtocol):
         if addr not in self.connections:
             self.connections.append(addr)
         print(f"Received Syslog message: {data} from {addr}")
-        self.transport.sendto(b"Recu 5/5 client", addr)
+        
         if data == b'Ping':
+            self.welcome_msg(addr)
             self.create_player(addr)
         
         if data == b'Disconnected':
@@ -53,7 +54,8 @@ class ServerUDP(asyncio.DatagramProtocol):
             del self.players[addr]
     
     def welcome_msg(self, addr):
-        pass
+        response = f'W:{self.connections.index(addr)}'.encode()
+        self.transport.sendto(response, addr)
 
     def send_to_all(self, data):
         for a in self.connections:
