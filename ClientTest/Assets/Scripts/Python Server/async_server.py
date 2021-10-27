@@ -48,10 +48,13 @@ class ServerUDP(asyncio.DatagramProtocol):
         if data == b'Hello server':
             self.create_player(addr)
         
-        if data == b'Thank you server goodbye':
+        if data == b'Disconnected':
             self.connections.remove(addr)
             del self.players[addr]
     
+    def welcome_msg(self, addr):
+        pass
+
     def send_to_all(self, data):
         for a in self.connections:
             self.transport.sendto(data, a)
@@ -65,7 +68,7 @@ class ServerUDP(asyncio.DatagramProtocol):
         self.join_game(addr, player)
 
     def player_data(self, addr, player):
-        response = b'I\n'
+        response = b'I:'
         response += str(self.connections.index(addr)).encode()
 
         return response
