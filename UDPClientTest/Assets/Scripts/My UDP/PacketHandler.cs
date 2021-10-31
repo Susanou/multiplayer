@@ -15,10 +15,20 @@ public class PacketHandler : MonoBehaviour
 
     //Packet Methods
 
-    public void InstantiatePlayer(int connectionID, GameObject PlayerPrefab){
+    public void InstantiatePlayer(int connectionID, GameObject PlayerPrefab, bool isMyPlayer){
         GameObject go = Instantiate(PlayerPrefab);
         go.name = "Player: "+connectionID;
 
+        if (isMyPlayer){
+            go.AddComponent<InputManager>();
+        }
+
         UDPManager.instance.playerList.Add(connectionID, go);
     }
+
+    public void PlayerMove(int connectionID, Vector3 position){
+        Debug.Log("Moving player "+connectionID);
+        UDPManager.instance.playerList[connectionID].transform.position = position;
+    }
+
 }

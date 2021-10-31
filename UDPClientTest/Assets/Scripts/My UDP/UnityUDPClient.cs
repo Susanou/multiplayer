@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Threading;
 using System.Net;
 using System.Net.Sockets;
@@ -41,6 +42,7 @@ public class UnityUDPClient : MonoBehaviour
         client.Connect(host, port);
 
         threadRecv = new Thread(ReceiveDataThread);
+        threadRecv.CurrentCulture = new CultureInfo("en-US"); // needs to be stated explicitly for foreign machines
         threadRecv.IsBackground = true;
         threadRecv.Start();
     }
@@ -68,17 +70,41 @@ public class UnityUDPClient : MonoBehaviour
             {
                 string[] message = RecvPacket();
 
-                Debug.Log("message: " + message.ToString());
+                Debug.Log("message: " + message);
 
                 if(message[0] == "W"){
                     myConnectionID = Int32.Parse(message[1]);
                 }
 
-                if(message[0] == "I"){
+                switch(message[0]){
+                    case "I":
+                        int connectionID = Int32.Parse(message[1]);
+
+                        if(connectionID == myConnectionID)
+                            _executionQueue.Enqueue((()=>PacketHandler.instance.InstantiatePlayer(connectionID, PlayerPrefab, true))); // find a way to not have to use the lambda to wrap everything
+                        else
+                            _executionQueue.Enqueue((()=>PacketHandler.instance.InstantiatePlayer(connectionID, PlayerPrefab, false)));
+                        UDPSend.SendInstantiated();
+                        break;
+                    case "P":
+                        connectionID = Int32.Parse(message[1].Split('=')[0]);
+                        //string[] coord = message[1].Split('=')[1].Replace('.', ',').Split(';');
+                        string[] coord = message[1].Split('=')[1].Split(';');
+                        //Debug.Log(float.Parse(coord[0]));
+                        _executionQueue.Enqueue((()=>PacketHandler.instance.PlayerMove(connectionID,new Vector3(float.Parse(coord[0]),float.Parse(coord[1]),float.Parse(coord[2])))));
+                        break;
+                    default:
+                        break;
+
+
+
+                }
+
+/*                 if(message[0] == "I"){
                     int connectionID = Int32.Parse(message[1]);
                     _executionQueue.Enqueue((()=>PacketHandler.instance.InstantiatePlayer(connectionID, PlayerPrefab))); // find a way to not have to use the lambda to wrap everything
                     UDPSend.SendInstantiated();
-                }
+                } */
             }
             catch (Exception ex){
                 Debug.LogError(ex.ToString());
@@ -95,8 +121,8 @@ public class UnityUDPClient : MonoBehaviour
 
     private string[] RecvPacket(){
         byte[] receivedData = client.Receive(ref RemoteIP);
-        Debug.Log("Received data from server "+RemoteIP.Address.ToString() + " on port "+ RemoteIP.Port.ToString());
-        Debug.Log("message: " + Encoding.ASCII.GetString(receivedData));
+        //Debug.Log("Received data from server "+RemoteIP.Address.ToString() + " on port "+ RemoteIP.Port.ToString());
+        //Debug.Log("message: " + Encoding.ASCII.GetString(receivedData));
         string rcvData = Encoding.ASCII.GetString(receivedData);
         string[] message = rcvData.Split(':');
 

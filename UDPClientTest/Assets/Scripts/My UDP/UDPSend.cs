@@ -22,7 +22,7 @@ internal static class UDPSend
 
     public static void SendKeyInput(InputManager.Keys pressedKey)
     {
-        byte[] response = Encoding.ASCII.GetBytes("P:" + (byte) pressedKey);
+        byte[] response = Encoding.ASCII.GetBytes("M:" + (byte) pressedKey);
         UnityUDPClient.client.Send(response, response.Length);
     }
 }
