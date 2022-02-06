@@ -9,6 +9,7 @@ class Point():
         return '='+str(self.x) + ';' + str(self.y) + ';' + str(self.z)
 
 Spawn = Point(0,0,0)
+
 class Player():
     
     def __init__(self, id, in_game, position=None):
