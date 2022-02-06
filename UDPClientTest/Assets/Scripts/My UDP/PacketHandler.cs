@@ -27,8 +27,21 @@ public class PacketHandler : MonoBehaviour
     }
 
     public void PlayerMove(int connectionID, Vector3 position){
-        Debug.Log("Moving player "+connectionID);
+        //Debug.Log("Moving player "+connectionID);
         UDPManager.instance.playerList[connectionID].transform.position = position;
+    }
+
+    public void PlayerRotation(int connectionID, float rotation, bool isMyPlayer){
+        UDPManager.instance.WrapEulerAngles(rotation);
+
+        
+
+        if (isMyPlayer) return;
+        if (!UDPManager.instance.playerList.ContainsKey(connectionID)) return;
+        
+        Debug.Log(isMyPlayer);
+
+        UDPManager.instance.playerList[connectionID].transform.rotation = new Quaternion(0, rotation, 0, 0);
     }
 
 }

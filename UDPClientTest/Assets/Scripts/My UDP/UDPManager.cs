@@ -24,4 +24,23 @@ public class UDPManager : MonoBehaviour
     {
         
     }
+
+    public float WrapEulerAngles(float rotation){
+        rotation %= 360;
+
+        if (rotation > 180){
+            return -360;
+        }
+        return rotation;
+    }
+
+    public float UnwrapEulerAngles(float rotation){
+        
+        if (rotation >= 0)
+            return rotation;
+        
+        rotation = -rotation % 360;
+
+        return 360 - rotation;
+    }
 }

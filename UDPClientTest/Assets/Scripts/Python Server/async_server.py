@@ -36,7 +36,7 @@ class ServerUDP2(asyncio.DatagramProtocol):
     def __init__(self):
         self.connections = []
         self.players = {}
-        self.speed = 0.1
+        self.speed = 0.05
         super().__init__()
 
     def connection_made(self, transport):
@@ -65,19 +65,37 @@ class ServerUDP2(asyncio.DatagramProtocol):
             self.connections.remove(addr)
             del self.players[str(connectionID)]
         else:
-            datagram = unpack('<cxc', data)
+            #logger.debug(f"data received = {data}")
+            
+            datagram = data.split(b':')
+            #datagram = unpack('<cxc', data)
 
             if b'M' == datagram[0]:
                 move = datagram[1]
 
-                logger.debug(f"Moving Player {connectionID} {data.decode()}")
+                #logger.debug(f"Moving Player {connectionID} {data.decode()}")
                 
                 response = b'P:'
-                movement = try_to_move(self.players[connectionID].position, move, self.speed)
+                movement = try_to_move(self.players[connectionID].position, move, self.speed, self.players[connectionID].rotation)
                 response += connectionID.encode() + movement.__str__().encode()
-                [logger.debug(f"{k}, position , {v}") for k,v in self.players.items()]
+                #[logger.debug(f"{k}, position , {v}") for k,v in self.players.items()]
                 self.players[connectionID].position = movement
-                [logger.debug(f"{k}, position after movement , {v}") for k,v in self.players.items()]
+                #[logger.debug(f"{k}, position after movement , {v}") for k,v in self.players.items()]
+                asyncio.create_task(self.send_to_all(response))
+            elif b'R' == datagram[0]:
+                
+                rotation = float(datagram[1])
+
+                self.players[connectionID].rotation = rotation
+                logger.debug(f"processing rotation data {rotation}")
+                response = b'R:'
+                response += connectionID.encode() + b'=' + str(rotation).encode()
+
+                #logger.debug(f"response rotation = {response}")
+                
+                if not self.players[connectionID].in_game:
+                    return
+
                 asyncio.create_task(self.send_to_all(response))
 
     

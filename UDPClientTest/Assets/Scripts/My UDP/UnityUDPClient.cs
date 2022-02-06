@@ -70,7 +70,7 @@ public class UnityUDPClient : MonoBehaviour
             {
                 string[] message = RecvPacket();
 
-                Debug.Log("message: " + message);
+                //Debug.Log("message: " + message[0] + " " + message[1]);
 
                 if(message[0] == "W"){
                     myConnectionID = Int32.Parse(message[1]);
@@ -92,6 +92,11 @@ public class UnityUDPClient : MonoBehaviour
                         string[] coord = message[1].Split('=')[1].Split(';');
                         //Debug.Log(float.Parse(coord[0]));
                         _executionQueue.Enqueue((()=>PacketHandler.instance.PlayerMove(connectionID,new Vector3(float.Parse(coord[0]),float.Parse(coord[1]),float.Parse(coord[2])))));
+                        break;
+                    case "R":
+                        connectionID = Int32.Parse(message[1].Split('=')[0]);
+                        _executionQueue.Enqueue((() => PacketHandler.instance.PlayerRotation(connectionID, 
+                                    float.Parse(message[1].Split('=')[1]), connectionID==myConnectionID)));
                         break;
                     default:
                         break;

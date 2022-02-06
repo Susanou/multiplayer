@@ -25,4 +25,9 @@ internal static class UDPSend
         byte[] response = Encoding.ASCII.GetBytes("M:" + (byte) pressedKey);
         UnityUDPClient.client.Send(response, response.Length);
     }
+
+    public static void SendPlayerRotation(float rotation){
+        byte[] response = Encoding.ASCII.GetBytes("R:" + (byte) rotation);
+        UnityUDPClient.client.Send(response, response.Length);
+    }
 }

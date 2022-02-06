@@ -15,6 +15,7 @@ public class InputManager : MonoBehaviour
     }
 
     public Keys pressedKey;
+    public float rotation;
 
     // Start is called before the first frame Update
     void Start()
@@ -25,7 +26,39 @@ public class InputManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        CheckRotation();
+        CheckCamera();
         CheckInput();
+
+        rotation = UDPManager.instance.UnwrapEulerAngles(
+            transform.localEulerAngles.y);
+    }
+
+    void FixedUpdate() {
+        
+    }
+
+    private void CheckRotation(){
+        gameObject.transform.localEulerAngles = new Vector3(
+            gameObject.transform.localEulerAngles.x,
+            UDPManager.instance.WrapEulerAngles(rotation),
+            gameObject.transform.localEulerAngles.z
+        );
+
+        UDPSend.SendPlayerRotation(rotation);
+    }
+
+    private void CheckCamera(){
+        Ray cameraRay = Camera.main.ScreenPointToRay(Input.mousePosition);
+        Plane groundPlane = new Plane(Vector3.up, Vector3.zero);
+        float rayLength;
+
+        if(groundPlane.Raycast(cameraRay, out rayLength)){
+            Vector3 pointToLook = cameraRay.GetPoint(rayLength);
+            Debug.DrawLine(cameraRay.origin, pointToLook, Color.red);
+            
+            transform.LookAt(new Vector3(pointToLook.x, pointToLook.y, pointToLook.z));
+        }
     }
 
     private void CheckInput(){
